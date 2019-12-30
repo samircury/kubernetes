@@ -1,0 +1,54 @@
+
+- name: Yum repo - Docker Community Edition
+  yum_repository:
+    name: docker-ce
+    description: docker-ce
+    # Lets switch to the public K8s repo
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+
+    gpgcheck: no
+
+- name: Yum repo - kubernetes
+  yum_repository:
+    name: kubernetes
+    description: kubernetes
+    # Lets switch to the public K8s repo
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgcheck: no
+
+
+# Where we deploy the Docker reepo again? I don't think this is available in default RHEL7
+- name: Docker packages
+  package:
+    name: ["docker-ce","docker-ce-cli","containerd.io"]
+    state: present
+
+- name: Running Docker
+  service:
+    name: docker
+    enabled: yes
+    state: started
+# TODO: make this an YUM resource and auto-accept the GPG key of the repo
+# TODO: Make version configurable and 1.13 a default
+- name: K8s packages
+  shell: 'yum install -y kubelet-{{ k8s_version }}-0 kubeadm-{{ k8s_version }}-0 kubectl-{{ k8s_version }}-0 kubernetes-cni-0.6.0-0'
+  # Note: For older CNI and components, this combination is a good generation down:
+  # kubelet-1.13.0-0 kubeadm-1.13.0-0 kubectl-1.13.0-0 kubernetes-cni-0.6.0-0
+
+# TODO: Use  https://docs.ansible.com/ansible/latest/modules/sysctl_module.html
+- name: Disabling swap and sysctl settings - its a must for kube
+  shell: |
+    swapoff -a
+    modprobe br_netfilter
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+    echo "net.bridge.bridge-nf-call-iptables=1" >> /etc/sysctl.conf
+    sysctl -p
+  #TODO: Add fact + conditional to not repeat this
+  # when: detected_changes.stdout != "0"
+#^[[Aroot@k8s-stest-m2:/tmp/ansible# apt install kubelet=1.12.0-00 kubectl=1.12.0-00 kubeadm=1.12.0-00 kubernetes-cni=0.6.0-00
+
+- import_tasks: master.yml
+  when: not worker
+
+- import_tasks: kubelet.yml
+  when: worker

@@ -1,0 +1,19 @@
+# sysctl -w net.ipv6.conf.all.disable_ipv6=1
+##- name: Initialize the master
+##  shell: "kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address={{ansible_default_ipv4.address}} --token-ttl=300h0m0s"
+  # when: master_initialized.rc != 0
+  # 	not_if "docker ps -a | grep kube-system"
+
+# - name: Deploy Calico + Metrics Server
+#   shell: >
+#       kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /opt/ansible/ansible/roles/kubernetes/templates/calico.yml
+
+#       kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /opt/ansible/ansible/roles/kubernetes/templates/rbac-kdd.yml
+
+#       kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /opt/ansible/ansible/roles/kubernetes/templates/metrics-server/
+
+# - name: Keep kube running
+#   service:
+#     name: kubelet
+#     enabled: yes
+#     state: started

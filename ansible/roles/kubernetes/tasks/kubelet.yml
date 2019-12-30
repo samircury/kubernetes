@@ -1,0 +1,11 @@
+# kubelet automation
+
+- name: Join the master
+  shell: >
+      kubeadm join {{master}}:6443 --token {{join_key}} --discovery-token-ca-cert-hash {{ca_cert}}
+
+- name: Keep kube running
+  service:
+    name: kubelet
+    enabled: yes
+    state: started
