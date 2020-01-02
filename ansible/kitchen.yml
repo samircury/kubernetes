@@ -1,0 +1,72 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 1536
+
+provisioner:
+  name: ansible_playbook
+  playbooks_path: playbooks
+  recursive_additional_copy_path:
+    - roles
+    # - playbooks
+  require_ansible_repo: true
+  require_pip: false
+  ansible_verbose: true
+  ansible_verbosity: 1
+  idempotency_test: false
+  ansible_version: latest
+  require_chef_for_busser: false
+  keep_playbook_path: true
+  run_options:
+    net: bridge
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: centos-8-vagrant
+    driver:
+      name: vagrant
+  - name: centos-7-vagrant
+    driver:
+      name: vagrant
+    driver_config:
+      box: geerlingguy/centos7
+  - name: centos-6-vagrant
+    driver:
+      name: vagrant
+  # - name: centos-7-docker
+  #   driver:
+  #     name: docker
+  #   driver_config:
+  #     dockerfile: Dockerfile
+  #     platform: centos
+  #     privileged: true
+  #     run_command: /usr/sbin/init
+
+
+
+suites:
+  - name: kubernetes
+    provisioner:
+      hosts: vagrant
+      playbook: roles/kubernetes.yml
+      extra_vars:
+        kitchen: yes
+    excludes:
+      - centos-6-vagrant
+      - centos-8-vagrant
+  # - name: kubernetes-node
+  #   provisioner:
+  #     hosts: vagrant
+  #     playbook: roles/kubernetes.yml
+  #     extra_vars:
+  #       kitchen: yes
+  #       worker: true
+  #       master: 1.2.3.4
+  #       join_key: yadda_yadda
+  #       ca_cert: a_fake_one
+  #   excludes:
+  #     - centos-6-vagrant
+  #     - centos-8-vagrant
