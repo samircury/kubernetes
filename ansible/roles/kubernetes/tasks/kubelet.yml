@@ -1,8 +1,10 @@
-# kubelet automation
-
+# TODO: add conditional in case node was initialized already
 - name: Join the master
   shell: >
-      kubeadm join {{master}}:6443 --token {{join_key}} --discovery-token-ca-cert-hash {{ca_cert}}
+      kubeadm join {{master}}:6443 --token {{join_key}} \
+      {{ kitchen | ternary( '--discovery-token-unsafe-skip-ca-verification',
+          ' '.join(('--discovery-token-ca-cert-hash', ca_cert)) ) }} \
+        --discovery-token-unsafe-skip-ca-verification
 
 - name: Keep kube running
   service:
