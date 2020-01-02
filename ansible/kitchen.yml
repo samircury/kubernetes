@@ -9,7 +9,6 @@ provisioner:
   playbooks_path: playbooks
   recursive_additional_copy_path:
     - roles
-    # - playbooks
   require_ansible_repo: true
   require_pip: false
   ansible_verbose: true
@@ -48,25 +47,32 @@ platforms:
 
 
 suites:
-  - name: kubernetes
+  - name: kubernetes-master
+    driver:
+      network:
+      - ["private_network", {ip: "10.2.1.20"}]
     provisioner:
       hosts: vagrant
       playbook: roles/kubernetes.yml
       extra_vars:
-        kitchen: yes
+        kitchen: true
     excludes:
       - centos-6-vagrant
       - centos-8-vagrant
-  # - name: kubernetes-node
-  #   provisioner:
-  #     hosts: vagrant
-  #     playbook: roles/kubernetes.yml
-  #     extra_vars:
-  #       kitchen: yes
-  #       worker: true
-  #       master: 1.2.3.4
-  #       join_key: yadda_yadda
-  #       ca_cert: a_fake_one
-  #   excludes:
-  #     - centos-6-vagrant
-  #     - centos-8-vagrant
+  - name: kubernetes-node
+    driver:
+      network:
+      - ["private_network", {ip: "10.2.1.25"}]
+    provisioner:
+      hosts: vagrant
+      playbook: roles/kubernetes.yml
+      extra_vars:
+        kitchen: true
+        worker: true
+        # Override the 2 vars below with what you get from the output of this :
+        # kitchen converge kubernetes-master # In prod, Terraform takes care of it.
+        join_key: 5lda7j.oxxxcgss2jozi2xg
+        ca_cert: sha256:bdaf817d8941e14b37ea6cf0fded1a2f9ed39cf190dec3766fbc8847a72d289f
+    excludes:
+      - centos-6-vagrant
+      - centos-8-vagrant

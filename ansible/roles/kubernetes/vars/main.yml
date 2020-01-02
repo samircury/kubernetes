@@ -1,3 +1,6 @@
 ---
 worker: false
 k8s_version: 1.13.0
+master: 10.2.1.20
+join_key: t162dq.sk7h83amh6w3qgsj
+ca_cert: sha256:625eb7f982f876de750f36c473e5805d728209d3c5a913355c301bac7d2958a8
