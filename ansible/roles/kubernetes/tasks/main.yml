@@ -1,11 +1,12 @@
 
+- import_tasks: facter.yml
+
 - name: Yum repo - Docker Community Edition
   yum_repository:
     name: docker-ce
     description: docker-ce
     # Lets switch to the public K8s repo
     baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
-
     gpgcheck: no
 
 - name: Yum repo - kubernetes
@@ -16,8 +17,6 @@
     baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
     gpgcheck: no
 
-
-# Where we deploy the Docker reepo again? I don't think this is available in default RHEL7
 - name: Docker packages
   package:
     name: ["docker-ce","docker-ce-cli","containerd.io"]
@@ -31,7 +30,8 @@
 # TODO: make this an YUM resource and auto-accept the GPG key of the repo
 # TODO: Make version configurable and 1.13 a default
 - name: K8s packages
-  shell: 'yum install -y kubelet-{{ k8s_version }}-0 kubeadm-{{ k8s_version }}-0 kubectl-{{ k8s_version }}-0 kubernetes-cni-0.6.0-0'
+  shell: 'yum install -y kubelet-{{ k8s_version }}-0 kubeadm-{{ k8s_version }}-0 kubectl-{{ k8s_version }}-0'
+  # shell: 'yum install -y kubelet-{{ k8s_version }}-0 kubeadm-{{ k8s_version }}-0 kubectl-{{ k8s_version }}-0 kubernetes-cni-0.6.0-0'
   # Note: For older CNI and components, this combination is a good generation down:
   # kubelet-1.13.0-0 kubeadm-1.13.0-0 kubectl-1.13.0-0 kubernetes-cni-0.6.0-0
 
@@ -52,3 +52,4 @@
 
 - import_tasks: kubelet.yml
   when: worker
+

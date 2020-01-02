@@ -1,0 +1,6 @@
+---
+
+- name: Kubernetes
+  hosts: all
+  roles:
+    - kubernetes

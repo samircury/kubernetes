@@ -1,0 +1,12 @@
+
+- stat:
+    path: /opt/ansible
+  register: ansible_codebase
+
+- name: Is master initialized?
+  shell:
+    cmd: "docker ps -a | grep kube-system"
+  when: kitchen
+  ignore_errors: yes
+  register: master_initialized
+

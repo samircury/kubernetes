@@ -1,3 +1,7 @@
 ---
 worker: false
-k8s_version: 1.13.0
+ansible_branch: master
+k8s_version: 1.15.0
+master: 10.2.1.20
+join_key: qbuuqg.jdlc501zei60cu7k
+ca_cert: dummy

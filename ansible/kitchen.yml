@@ -1,0 +1,77 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 1536
+
+provisioner:
+  name: ansible_playbook
+  playbooks_path: playbooks
+  recursive_additional_copy_path:
+    - roles
+  require_ansible_repo: true
+  require_pip: false
+  ansible_verbose: true
+  ansible_verbosity: 1
+  idempotency_test: false
+  ansible_version: latest
+  require_chef_for_busser: false
+  keep_playbook_path: true
+  run_options:
+    net: bridge
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: centos-8-vagrant
+    driver:
+      name: vagrant
+  - name: centos-7-vagrant
+    driver:
+      name: vagrant
+    driver_config:
+      box: geerlingguy/centos7
+  - name: centos-6-vagrant
+    driver:
+      name: vagrant
+  # - name: centos-7-docker
+  #   driver:
+  #     name: docker
+  #   driver_config:
+  #     dockerfile: Dockerfile
+  #     platform: centos
+  #     privileged: true
+  #     run_command: /usr/sbin/init
+
+
+
+suites:
+  - name: kubernetes-master
+    driver:
+      network:
+      - ["private_network", {ip: "10.2.1.20"}]
+    provisioner:
+      hosts: vagrant
+      playbook: roles/kubernetes.yml
+      extra_vars:
+        kitchen: true
+    excludes:
+      - centos-6-vagrant
+      - centos-8-vagrant
+  - name: kubernetes-node
+    driver:
+      network:
+      - ["private_network", {ip: "10.2.1.25"}]
+    provisioner:
+      hosts: vagrant
+      playbook: roles/kubernetes.yml
+      extra_vars:
+        kitchen: true
+        worker: true
+        # Override the 2 vars below with what you get from the output of this :
+        # kitchen converge kubernetes-master # In prod, Terraform takes care of it.
+        join_key: qbuuqg.jdlc501zei60cu7k
+    excludes:
+      - centos-6-vagrant
+      - centos-8-vagrant
